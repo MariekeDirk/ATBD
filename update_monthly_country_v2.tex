@@ -1,0 +1,508 @@
+\documentclass[a4paper]{article}
+
+\title{Monthly updates for Norway, Slovenia, Germany, Finland, the
+  Netherlands, the Czech Republic, Luxemburg, Wageningen-Haarweg,
+  and how to make the monthly E-OBS files}
+
+\author{Else van den Besselaar \& Gerard van der Schrier}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Introduction}
+This document describes how the monthly updates for Norway, Slovenia,
+Germany, Finland, the Netherlands, the Czech Republic, Luxemburg, and
+Wageningen-Haarweg are included into the ECA\&D database.
+
+%% NORWAY:
+
+\section{Norway}
+
+The Norwegian updates will be received in the morning of the first day
+of the month via email at eca@knmi.nl. The data includes days for the
+last three months. All steps are relative to the directory
+\texttt{$\sim$/Else/Countries/Norway/AllElements} on the ECA\&D development system
+bhlbontw.
+
+\subsection*{Steps to take}
+
+New reports have been ordered from Eklima (met.no) so now all stations
+reports have the same format:
+\begin{enumerate}
+\item Check directory \texttt{Data} for datafiles. If they exist, move
+  them to a directory \textit{yyyymm} with \textit{yyyy} year and
+  \textit{mm} the month of the previous update.
+\item Copy the files from the emails to \texttt{Data}.
+\item Typing './run\_updates\_allelements.sh' should be enough.
+\item The script should copy all datafiles to the directory
+  \textit{Data/yyyymm} with \textit{yyyy} year and \textit{mm} the
+  previous month.
+\item If problems arise, probably something has changed in the format
+  of the data. Changing the program
+  \texttt{update\_norway\_allelements.c} and using 'make
+  update\_norway\_allelements' might be needed. (Not happened so far.)
+\end{enumerate}
+
+
+%% SLOVENIA
+
+\section{Slovenia}
+
+Conny Schiks downloads the data from the website
+\texttt{http://meteo.arso.gov.si/ met/en/app/webmet/} (icon
+Archive). She sends an email to \texttt{eca@knmi.nl} with information
+on where to find the data. All steps are relative to the directory
+\texttt{$\sim$/Else/Countries/Slovenia} on the ECA\&D development
+system bhlbontw.
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item Check for datafiles in the directories \texttt{Datacumulative},
+  \texttt{Datameans} and \texttt{Dataprecip}. If there are datafiles
+  present, move them to a directory \textit{yyyymm} with \textit{yyyy}
+  year and \textit{mm} the month of the previous update.
+\item Copy the datafiles from the directories including 'cumulatives'
+  of Conny's email to \texttt{Datacumulative/}
+\item Copy the datafiles from directories including 'Measurements and
+  Means' of Conny's email to \texttt{Datameans/}
+\item Copy the datafiles from the directories including
+  'precipitation' of Conny's email to \texttt{Dataprecip/}
+\item Make sure that in \texttt{update\_slovenia\_cumulative.c} lines
+  394 to 416 are commented out (with // in front of the line or /*
+  \dots */ (this is the part that actually includes the data into the
+  database).
+\item Type 'ls Datacumulative/*.txt $>$ inputdatacumulative.txt'
+\item Type 'ls Datameans/*.txt $>$ inputdatameans.txt'
+\item Type 'make update\_slovenia\_cumulative'
+\item Type 'update\_slovenia\_cumulative'
+  \begin{itemize}
+  \item Most likely some errors are produced saying that certain
+    stations don't exist in \texttt{series\_slovenia.txt}. Usually
+    this means that Conny made a typing error in the station name
+    which is part of the filename. Check \texttt{series\_slovenia.txt}
+    for the correct name (ignore uppercase/lowercase
+    differences). Also the first line of the datafile gives the
+    station name. Change the filename to the correct name and also in
+    \texttt{inputdatacumulative.txt} (please do not change
+    \texttt{series\_slovenia.txt} as that might give problems when,
+    for some reason, we need to include earlier data again).
+  \item Other errors might come from something in the datafile. For
+    example some commas are missing somewhere in the file due to the
+    copy-paste work from Conny. Include the missing commas and it
+    should work. As of March 2013, Conny no longer includes comma's
+    since the Slovenian website has changed. She will use Excell and
+    save as csv which gives ; separated files. The programs changes
+    these to comma's, no need to do it yourself.
+  \item It could also be that the filename does not end with
+    \texttt{\#\#\#\#-\#\#\#\#.txt}. If this is the case, include
+    \textit{monthyear-monthyear} so that the format is correct (values
+    itself are not used, Conny uses them to see what she has already
+    downloaded).
+  \item If a certain datafile keeps giving problems that you can not
+    solve, put a \texttt{\#} in front if it in
+    \texttt{inputdatacumulative.txt} (than it will be skipped) and put
+    the datafile somewhere separately. I can have a look at it later.
+  \end{itemize}
+\item Type 'update\_slovenia\_cumulative' again until no more errors
+  are seen.
+\item Remove the // or /* */ in
+  \texttt{update\_slovenia\_cumulative.c} in front of the include
+  parts and type 'make update\_slovenia\_cumulative'
+\item Type 'update\_slovenia\_cumulative' again to really include the
+  data into the database.
+\item Move the datafiles to a new directory \textit{yyyymm} in
+  \texttt{Datacumulative/} with \textit{yyyy} year and \textit{mm} the
+  month of this update.
+\end{enumerate}
+
+Repeat steps 5 to 13 for \texttt{inputdatameans} and
+\texttt{update\_slovenia\_means.c} (lines 439 to 494 need to be
+commented out at first) and also for \texttt{inputdataprecip.txt} and
+\texttt{update\_slovenia\_precip} (lines 397 to 411 need to be
+commented out at first).
+
+
+%% GERMANY
+
+\section{Germany}
+
+The German data will be put on the ftp-server \texttt{ftppro.knmi.nl}
+using user \textit{eca} in the directory \texttt{Germany}. An email at
+eca@knmi.nl is received when the data is available from the
+ftp-server, usually around the second of the month. The German data is
+updated to the end of the month before last (e.g. they are always one
+month behind our updates). All steps are relative to the directory
+\texttt{$\sim$/Else/Countries/Germany/FTPserver/} on the ECA\&D
+development system bhlbontw.
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item Check if there are no tar-files present in \texttt{Data/Klima}
+  and \texttt{Data/Synop}. If there are, move them to
+  \texttt{Data/Klima/Done} and \texttt{Data/Synop/Done}.
+\item Copy the tar-file with 'klima' in the name from the ftp-server
+  to \texttt{Data/Klima}.
+\item Copy the tar-file with 'synop' in the name from the ftp-server
+  to \texttt{Data/Synop} (this file contains pressure and maximum of
+  hourly precipitation).
+\item Type './run\_updates\_ftp.sh'. This takes care of the untarring
+  and ungzipping of both the synop and klima data and includes the
+  data into the database. It will also move the tar-files to the
+  \texttt{Done} directories and removes unnecessary files.
+\item If errors occur then it is most likely that one or more of the
+  datafiles have an error in (format of) the datafile.
+\end{enumerate}
+
+
+%% Finland
+
+\section{Finland}
+
+The Finnish data will be put on the ftp-server \texttt{ftppro.knmi.nl}
+using user \textit{eca} in the directory \texttt{Finland}. The data is
+sent on the first day of the month containing data of the last 2
+monhts. All steps are relative to the directory
+\texttt{$\sim$/Else/Countries/Finland/} on the ECA\&D development
+system bhlbontw.
+
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item Check if there are no .dat-files in \texttt{Data}. If there are,
+  move them to \texttt{Data/Done}.
+\item Copy the .dat-file from the ftp-server to \texttt{Data}.
+\item Type './run\_updates\_fmi.sh'. This takes care of including the
+  data into the database. It will also move the .dat-file to the
+  directory \texttt{Data/Done}.
+\end{enumerate}
+
+
+%% The Netherlands
+
+\section{the Netherlands}
+
+The Netherlands data is extracted from the KNMI KIS-system. In the directory
+\texttt{/nobackup/users/schrier/ECAD/jobs} are the scripts needed to make contact
+with the KIS database, which extract the relevant data and aggregate the data
+if neccessary. These scripts are: \texttt{update\_NL\_rrsd.sh} , \texttt{update\_NL\_txtgtnsspphucc.sh}
+and \texttt{update\_NL\_fgfxdd.sh}.
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item change to directory \texttt{/nobackup/users/schrier/ECAD/jobs} on the \texttt{bhw323}
+\item run the scripts, with input on the command line: the startdate and the enddate for which
+you want to add data. Format of these dates: yyyymmdd. 
+
+Note that it takes time for the KNMI
+validation to validate all the precipitation (and snow depth) stations. This means that the startdate for
+an update of a given month should be \emph{the first day of the previous month}. So, an update
+for precipitation for the month November 2011 will have as input to the script: 20111001 20111130.
+
+Note: the precipitation and snowdepth readings of the KNMI network are related to the date of the observing
+day, while the measurement overlaps mostly with the day preceding the observation day. In the software,
+this difficulty is adjusted for by shifting the date of the measurement one day back. This means
+that the enddate for the update script should be the first day of the current month. Example: for November 2011,
+this should be 20111201. However, the validation usually lags some 20 days, updating very recent data
+need not take account of this issue.
+\item in the directory \texttt{../results}, tarred files appear which can be ftp-ed to the \texttt{bhlbontw},
+directory \texttt{Gerard/datainput}. Run the script \texttt{insert\_data\_in\_} \texttt{database.sh} 
+with Netherlands
+on the command line. This script unpacks the data, inserts it into the database and stores the raw
+data in the directory \texttt{Gerard/Netherlands/Data/yyyymmdd}, where yyyymmdd the date of the day the insert
+script was run.
+\end{enumerate}
+
+
+%% Czech Republic
+
+\section{Czech Republic}
+
+The Czech data will be put on the ftp-server \texttt{ftppro.knmi.nl}
+using user \textit{eca} in the directory \texttt{CzechRepublic}. 
+The Czech data is updated to the end of the month before last (they are always one
+month behind our updates). 
+In the directory
+\texttt{/nobackup/users/schrier/ECAD/jobs} is the script which translates the data to
+a  format ready for ECA\&D.
+This script is: \texttt{update\_CzechRepublic.sh}.
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item ftp the Czech data to \texttt{/usr/people/schrier/ECAD/participantdata/} \texttt{czechrepublic/}.
+\item change to directory \texttt{/nobackup/users/schrier/ECAD/jobs} on the \texttt{bhw323}
+\item run the script, with input on the command line: the year and month to be updated (format: yyyymm).
+
+The script will produce a simple txt file in the directory \texttt{../results} 
+with data ready to be inserted into the database.
+\item ftp the resulting datafile to the \texttt{bhlbontw},
+directory \texttt{Gerard/datainput}. Run the script \texttt{insert\_data\_in\_database.sh} with CzechRepublic
+on the command line. This script inserts the data into the database and stores the raw
+data in the directory \texttt{Gerard/CzechRepublic/Data/yyyymmdd}, where yyyymmdd the date of the day the insert
+script was run.
+\end{enumerate}
+
+
+%% Luxemburg
+
+\section{Luxemburg}
+
+The Luxemburg data is send by email early in the new month, usually the first or second of the month.
+In the directory
+\texttt{/nobackup/users/schrier/ECAD/jobs} is the script which translates the data to
+a  format ready for ECA\&D.
+This script is: \texttt{update\_Luxembourg.sh}.
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item save the attachment in the directory \texttt{/usr/people/schrier/ECAD/parti-} \texttt{cipantdata/luxembourg/}.
+\item the attachement is an Excell file, convert this by running soffice and save as CSV file. This produces
+a file with the same name as the original file, but with extension .csv.
+\item change to directory \texttt{/nobackup/users/schrier/ECAD/jobs} on the \texttt{bhw323}
+\item edit the script \texttt{update\_Luxembourg.sh} and change the year and month to the year and month of
+the data provided.  
+\item run the script \texttt{update\_Luxembourg.sh}. This produces the file \texttt{lux.tar} on \texttt{../results} with data ready to be inserted into the database.
+\item ftp the resulting datafile to the \texttt{bhlbontw},
+directory \texttt{Gerard/datainput}. Run the script \texttt{insert\_data\_in\_database.sh} with Luxembourg
+on the command line. This script inserts the data into the database and stores the raw
+data in the directory \texttt{Gerard/Luxembourg/Data/yyyymmdd}, where yyyymmdd the date of the day the insert
+script was run.
+\end{enumerate}
+
+%% Wageningen - Haarweg
+
+\section{Wageningen - Haarweg}
+
+A special case is the data from Wageningen University (station `Haarweg'). This station used to be a
+KNMI `termijn' station (part of an extensive network of climatological stations measuring various
+elements at 3-hourly resolution) but is continued under the supervision of the Wageningen agricultural
+university (WUR).
+
+The Wageningen data is made available via the WUR webpages and is available some days after the start
+of the new month.
+In the directory
+\texttt{/nobackup/users/schrier/ECAD/jobs} is the script which translates the data to
+a  format ready for ECA\&D.
+This script is: \texttt{update\_Wageningen.sh}.
+
+\subsection*{Steps to take}
+
+\begin{enumerate}
+\item run the script \texttt{update\_Wageningen.sh}. This script requires two input fields: year and month
+as yyyy mm and extracts the appropriate datafile from the WUR webpages and processes its contents. 
+This produces the file \texttt{Wageningen.tar} on \texttt{../results} with data ready to be 
+inserted into the database.
+\item ftp the resulting datafile to the \texttt{bhlbontw},
+directory \texttt{Gerard/datainput}. Run the script \texttt{insert\_data\_in\_database.sh} with Wageningen
+on the command line. This script inserts the data into the database and stores the raw
+data in the directory \texttt{Gerard/Wageningen/Data/yyyymmdd}, where yyyymmdd the date of the day the insert
+script was run.
+\end{enumerate}
+
+%% Spain
+
+% \section{Spain}
+% The Spanish data is made available via the ftp server of AEMET. The updates of the daily data are in a compressed
+% ASCII file which contains all data from the running year, e.g. 2012.CSV.gz. Spanish data is updated to the end 
+% of the previous month
+
+% In the directory
+% \texttt{/nobackup/users/schrier/ECAD/jobs} is the script which translates the data to
+% a  format ready for ECA\&D.
+% This script is: \texttt{update\_Spain.sh}.
+
+% \subsection*{Steps to take}
+
+% \begin{enumerate}
+% \item run the script \texttt{update\_Spain.sh}. This script requires one input field: year 
+% as yyyy and extracts the appropriate datafile from the AEMET ftp webpages and processes its contents. 
+% This produces the file \texttt{Spain.tar} on \texttt{../results} with data ready to be 
+% inserted into the database.
+% \item ftp the resulting datafile to the \texttt{bhlbontw},
+% directory \texttt{Gerard/datainput}. Run the script \texttt{insert\_data\_in\_database.sh} with Spain
+% on the command line. This script inserts the data into the database and stores the raw
+% data in the directory \texttt{Gerard/Spain/Data/yyyymmdd}, where yyyymmdd the date of the day the insert
+% script was run.
+% \end{enumerate}
+
+
+%% E-OBS
+
+
+\section{Monthly E-OBS update}
+
+Below are the steps needed to produce the monthly update for the E-OBS
+dataset. This can be started when \texttt{all\_qcblend\_eobs.sh} in
+the update cycle (\texttt{fullcycle.sh} on the development system
+(bhlbontw) has been finished. It will give a message: \textit{Data for
+  E-OBS is ready!}.
+
+Furthermore, the steps to produce the related plots for the climate
+diagnostics talk as well as for the website Maandoverzicht Wereldweer
+are given below.
+
+
+\subsection{Updating the gridded files}
+
+\begin{enumerate}
+\item Go to the directory \texttt{Else/Ensembles} on the development
+system bhlbontw.
+\item Check \texttt{make\_ensembles\_else.sh}: uncomment (if needed)
+  only the parts for ensembles\_tx?, ensembles\_tn?, ensembles\_tg?,
+  ensembles\_rr? and ensembles\_pp?. The parts with
+  ensembles\_t?\_stations, ensembles\_rr\_stations and
+  ensembles\_pp\_stations are not needed. What IS needed is the part
+  with \texttt{ensembles\_all\_stations}.
+\item Type 'make\_ensembles\_else.sh'. The files will be put into the
+  directory \texttt{data}.
+\item Copy the files
+  \texttt{$\sim$/Else/Ensembles/data/ensembles\_t?},
+  \texttt{$\sim$/Else/Ensembles/ data/ensembles\_pp},
+  \texttt{$\sim$/Else/Ensembles/ data/ensembles\_rr}, and 
+  \texttt{$\sim$/Else/ Ensembles/data/ensembles\_all\_stations}
+  (located on the development system bhlbontw) to
+  \texttt{/nobackup/users/schrier/E-OBS/data\_input} on
+  the bhw323 machine (Gerards workstation).\\
+
+\smallskip 
+
+\noindent On the bhw323 machine:
+\item Remove the files in
+\texttt{/nobackup/users/schrier/E-OBS/gridded\_daily/}
+and \linebreak
+\texttt{/nobackup/users/schrier/E-OBS/gridded\_climatology/}.
+\item In \texttt{/nobackup/users/schrier/E-OBS/final/} remove only the
+  files starting with tn$|$tg$|$tx$|$pp$|$rr AND ending with nc or
+  nc.gz (the other ones need to stay there!)
+\item Check number of stations with "select count(sta\_id from
+  stations)" in mysql on the development system bhlbontw.
+\item Go to \texttt{/nobackup/users/schrier/E-OBS/programs/final\_gridding} (on the
+  bhw323 machine) and change the number of stations at the top of
+  grid.inc (nstns) to the one from the query above. Check also the
+  directories \texttt{data\_dir}, \texttt{clim\_dir},
+  \texttt{daily\_dir} and \texttt{final\_dir} if these are the same as
+  the ones from the steps above. Also check the elements that are
+  going to be gridded. These are given with \texttt{var} and
+  \texttt{dovar} in \texttt{grid.inc}. \texttt{var} only shows the
+  other of the elements (do not change this!), \texttt{dovar} shows
+  what elements to grid.
+\item If only one year needs to be gridding, only the main grid.inc
+  needs to be changed. If all years need to be gridding, change also
+  the grid.inc files in the directories Do\#\#\#\#\#\# (nstns, dovar
+  and directories) as these do the gridding for 10 years each. Then
+  also change do\_gridding.sh so that it uses the Do\#\#\#\#\#\#
+  directories instead of the grid\_daily\_trim\_else in the
+  final\_gridding directory.
+\item Type 'do\_gridding.sh' in
+  \texttt{/nobackup/users/schrier/E-OBS/programs/final\_gridding} on
+  the bhw323 machine. You can also run it via a nohup option if
+  preferred.
+\item If errors occur during \texttt{ascii\_to\_uf} (quite quickly
+  after starting the gridding procedure) it usually means that the
+  number of stations in grid.inc is not correct and/or the file
+  \texttt{/nobackup/users/schrier/E-OBS/data\_input/\linebreak ensembles\_all\_stations}
+  is not updated.
+\item If errors occure later on, it probably means that some files
+  were not removed from the \texttt{gridded\_daily} or
+  \texttt{gridded\_climatology} directories mentioned in some steps
+  before and therefore the program can not update/write the files it
+  is needed.
+\item After \texttt{do\_gridding.sh} is finished without errors, copy
+  the files in \texttt{/nobackup/\linebreak users/schrier/E-OBS/final/} to
+  directory \texttt{$\sim$/Gridding/Data/\$year\$/final} on the bhle4m
+  machine.
+\item run \texttt{makemonths.sh} in
+  \texttt{$\sim$/Gridding/Data/\$year\$/final} on the bhle4m. It
+  usually gives some errors as it expect some files to be zipped,
+  which aren't, but this is no problem. It also gives errors that some
+  files do not exist, these are the uncertainty files which are not
+  calculated for the monthly updates. Just ignore these errors.
+\item Copy \texttt{$\sim$/Gridding/Data/\{\$year\}/final/*.nc.gz} to
+  \texttt{$\sim$/codebase/download/ ensembles/data/months} on the
+  development system bhlbontw (usually *.nc.gz only gives the files
+  that are needed, but you can check it. The files needed are
+  *2013\#\#.nc.gz and *2013.nc.gz.)
+\item In
+  \texttt{$\sim$/codebase/download/ensembles/downloadmonths.php}
+  uncomment the part for the month that you did your update for by
+  removing the start $<!--$ before the month is written out and the
+  end $-->$ below, but above the place where the previous month is
+  written out.
+\item Copy the files in
+  \texttt{$\sim$/codebase/download/ ensembles/data/months} to the
+  operational system (same directy) and change
+  \texttt{$\sim$/codebase/download/ ensembles/downloadmonths.php}
+  there.
+\end{enumerate}
+
+\subsection{Preparing the plots for the climate diagnostic talk}
+
+As of March 2013, the climate diagnostic talks are no longer given,
+but plans are to merge this with the weekly weather talks on
+Thursday. Therefore the method to calculate these files will still be
+described below.
+
+\begin{enumerate}
+\item Go to \texttt{$\sim$/Gridding/Plot/KlimDiag/} on the bhle4m
+  machine.
+\item Type 'obs\_month\_temp' and give the month to plot. Press enter
+  until you receive a plot on your screen. Check the plot and if it is
+  okay, do the same but enter 'n' to the question if you want to show
+  it on the screen. Press enter for the file name, this is the
+  standard file that is used.
+\item Do the same for precipitation with 'obs\_month\_rr'.
+\item Do the same for precipitation with 'obs\_month\_pp'.
+\item Do the same for temperature anomaly with 'means\_temp'.
+\item Do the same for precipitation anomaly with 'means\_rr'.
+\item Do the same for precipitation anomaly with 'means\_pp'.
+\item if you need to change something, the (fixed) colour scale range
+  is given at the beginning of subroutine Initializing(\dots) with the
+  parameters standardmax and standardmin. Also the standarddate is
+  given there, but you can change that from the command line. If you
+  need to change something else, please save the original .c file to
+  another name.
+\item Sometimes Rob asks for a specific date. These can be produces
+  with \texttt{anomaly\_rr}, \texttt{anomaly\_temp}, \texttt{obs\_rr}
+  and \texttt{obs\_temp}.
+\item If you get errors like \texttt{inq lon: status = 2 No such file
+    or directory} it usually means that the files is zipped in
+  \texttt{$\sim$/Gridding/Data/\{\$year\}/final/}. The filename is given in
+  the C-code in the top subroutine.
+\item If you need TX or TN, you can do a search and replace in the
+  files with \texttt{\_temp.c} and use 'make' on that file. Please put
+  it back to TG afterwards.
+\item Run the script \texttt{convert\_and\_move.sh} to create png
+  files, move the files to a directory \textit{yyyymm} and create a
+  zip-file.
+\item Email the zip-file to Rob Sluijter (someone else if he is away).
+\end{enumerate}
+
+\subsection{Preparing the files for the website Maandoverzicht
+  Wereldweer}
+\begin{enumerate}
+\item To produce the plots for the website \textit{Maandoverzicht
+    Wereldweer} go to
+  \texttt{$\sim$/Gridding/Plot/OverzichtWereldweer} on the bhle4m
+  machine.
+\item Put into \texttt{getplots.sh} the files that you need and run
+  it. The postscript plots are saved in \texttt{Plots}.
+\item Run \texttt{converting.sh} which will convert the postscript
+  plots of 2013 to png files that are needed on the website. (or do it
+  manually with 'convert -rotate 90 -resize 450 $<$filename$>$.ps
+  $<$filename$>$.png')
+\item Copy the new .png files to
+  \texttt{/data/web/www2/htdocs/klimatologie/\\maandoverzicht\_wereldweer/\{\$year\}/}
+  (only reachable from your own machine)
+\item Usually Else sends an email to Geert Jan to notify him that the
+  files for month xxx have been copied to the directory of
+  maandoverzicht wereldweer.
+\end{enumerate}
+
+\end{document}

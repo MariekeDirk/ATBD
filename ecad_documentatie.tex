@@ -1,0 +1,206 @@
+\documentclass{article}
+
+\bibliographystyle{abbrv}
+
+%-- wider textwidth:
+%\setlength{\leftmargin}{-5mm}
+%\setlength{\rightmargin}{\leftmargin}
+%\setlength{\oddsidemargin}{\leftmargin}
+%\setlength{\evensidemargin}{\leftmargin}
+%\setlength{\textwidth}{170mm}
+
+%-- wider textheight:
+%\setlength{\textheight}{240mm}
+%\setlength{\topmargin}{-10mm}
+
+\newcommand{\dF}{$^{\circ}$F}
+\newcommand{\dC}{$^{\circ}$C}
+\newcommand{\dN}{$^{\circ}$N}
+\newcommand{\dS}{$^{\circ}$S}
+\newcommand{\dW}{$^{\circ}$W}
+\newcommand{\dE}{$^{\circ}$E}
+
+\newcommand{\veps}{\varepsilon}
+\newcommand{\rd}{\text{d}}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{makeidx}
+\usepackage{rotating}
+\usepackage{bezier}
+\usepackage{tabularx}
+
+\begin{document}
+
+\section*{ECA\&D Documentatie}
+
+\subsection*{ECA\&D ontwikkel- en testomgeving}
+De ECA\&D ontwikkel- en testomgeving is de bhlbontw.knmi.nl. Er zijn twee gebruikersaccounts op deze machine: 
+rccuser en rcctest. Beide hebben als password: welkom\\
+
+\noindent
+Home directory: /data/apps/rcc\\
+directory met webpagina's: /data/apps/rcc/codebase\\
+directory met TriOpSys' processing controller: /data/apps/rcc/server\\
+
+\noindent
+Dit systeem is niet toegankelijk voor de buitenwereld, geblokkerd door de firewall. De webpagina's zijn intern
+te benaderen via: http://bhlbontw/rcc\\
+
+\noindent
+Op de bhlbontw is een mysql-server (localhost) aanwezig.
+De toegangen is:
+\begin{itemize}
+\item user: rccuser password: rcc123
+\end{itemize}
+
+\subsection*{ECA\&D productieomgeving}
+De ECA\&D productieomgeving os een cluster van de machines bhlbecad01/02 en is te benaderen via: ecad.knmi.nl.
+Toegang via user: rccuser password: 3cAtUsr.
+
+\noindent
+De inrichting van de directory- en filestructuur is gelijk gehouden aan de test- en ontwikkelomgeving. Het is de 
+bedoeling dat de databases op de beide machines ook indentiek zijn.
+
+Op dit systeem is geen mysql-server, maar er is toegang tot een extrene mysql-server. 
+\begin{itemize}
+\item power user: user: powerecad password: pwr3cAt
+\item read \& write: user: 3cAtr8 password: rwecad
+\item read-only: user: ecadread password: 3cAtrd
+\item databasenaam: RCC
+\end{itemize}
+
+\noindent
+Je kunt de database benaderen door bijvoorbeeld:\\
+\texttt{mysql -u powerecad -p -h bwdb}\\
+waarna er om het password gevraagd wordt.
+
+\noindent
+Het vullen van tabellen kan je doen door:\\
+\texttt{mysql -hbwdb.knmi.nl -upowerecad -ppwr3cAt RCC < tabelnaam.sql}
+
+\subsection*{Nieuwe releases van TriOpSys}
+De server applicatie verwijst ook naar het Server.jar bestand (die middels Apache gehost is). Hierbij dienen 
+deze bestanden dan wel exact hetzelfde te zijn, anders treden er conflicten op in de verbinding met RMI. 
+De melding die zicht hieronder voordoet kan het volgende als oorzaak hebben, namelijk:
+\begin{itemize}
+\item dat de versie van de bestanden afwijken van elkaar (Apache en de server applicatie)
+\item dat de server applicatie geen toegang heeft tot het bestand (een verkeerde verwijzing, rechten problemen 
+of Apache die nog niet gestart is).
+\end{itemize}
+
+Hierom zou het het mooiste zou zijn als de installatie als volgt zou zijn:
+
+Server applicatie:
+\begin{itemize}
+\item   /data/apps/rcc/server/startServer.sh
+\item   /data/apps/rcc/server/Server.jar $\rightarrow$ /data/apps/rcc/codebase/Server$_-$1074.jar (symbolic link)
+\item   /data/apps/rcc/server/config/rcc.properties
+\item   /data/apps/rcc/server/config/security.policy
+\item   Etc.
+\end{itemize}
+
+Codebase:
+\begin{itemize}
+\item  /data/apps/rcc/codebase/Server$_-$1074.jar
+\end{itemize}
+
+Apache HTTP server:
+\begin{itemize}
+\item  /var/www/rcc / Server.jar $\rightarrow$ /data/apps/rcc/codebase/Server$_-$1074.jar (symbolic link)
+\end{itemize}
+
+Door het Server$_-$xxxx.jar bestand onder de codebase directory te plaatsen en gebruik te maken van 
+twee symbolic links kunnen deze bestanden nooit uit verschillende versies bestaan. Daarnaast hoeft er dan maar 
+eenmalig in de security.policy bestanden van de server, console en web applicatie een verwijzing naar het 
+Server.jar bestand gemaakt te worden, die dan middels de Apache web server beschikbaar wordt gesteld.
+
+Let op dat er ook een verwijzing wordt gedaan naar het RMI Server.jar bestand in het startServer.sh script. 
+Deze dient ook aangepast te worden en indien bovengenoemde configuratie wordt gehanteerd zal ook deze 
+aanpassing eenmalig zal zijn.
+
+Voor het plaatsen van de nieuwe web applicatie hoeft deze in principe niet opnieuw opgestart te worden 
+echter is het wel verstandig om dit te doen aangezien je er niet geheel zeker van kan zijn dat alles opnieuw 
+ingeladen wordt. Daarnaast loop je ook het risico dat de gebruiker mogelijk de verkeerde url kan gaan gebruiken.
+
+\subsection*{invoeren van data van participanten}
+Voor een aantal participanten is alle of een deel van de data in te voeren vanaf de website van het betreffende meteorologische
+instituut, of (in het geval van NL), vanuit de KIS database. Om de juiste koppeling tussen de stationsnamen/stations id's van elk 
+land en de ECA\&D sta\_id's te waarborgen, wordt een tabel aangemaakt waarin deze koppeling expliciet gemaakt wordt.
+
+In die tabel staan achtereenvolgens:\\
+stationsnaam\\ 
+provincie (optioneel)\\
+nationaal stations id \\
+ECA\&D sta\_id\\
+cc ser\_id \\
+ss ser\_id \\
+pp ser\_id \\
+rr ser\_id \\
+sd ser\_id \\
+tg ser\_id \\
+tn ser\_id \\
+tx ser\_id \\
+hu ser\_id \\
+hierbij wordt een ser\_id op "-1" gezet als het betreffende element voor dat station mist.
+
+\subsubsection*{invoeren Nederlandse data}
+De invoer van Nederlandse data wordt gedaan met een bash script wat direct verbinding zoekt met het Klimatologisch 
+Informatie Systeem,
+uurlijkse data uit de database haalt, en deze aggregeert naar dagelijkse waarden. Dit aggregeren gebeurt door drie Fortran routines.
+
+Aanroep van het script is:
+\texttt{sh update\_Netherlands.sh} yyyymmdd yyyymmdd\\
+waarbij yyyymmdd the start- en einddatum zijn respectivelijk. Dit file produceert een aantal datafiles, met als naam: 
+\texttt{Stationsnaam\_XX.txt}. Hierbij is XX $\in$ (TX,TG,TN,PP,RH,SS,CC,RR,SD). In deze files staat: datum, ser\_id, ele\_name, 
+value. 
+
+Het bash script staat vooralsnog op: /net/bhw132/nobackup\_1/users/schrier/ECAD/jobs.
+
+\subsubsection*{invoeren data van Luxembourg Airport}
+Maandelijks stuurt Jacques Zimmer een Excel file met de data van de afgelopen maand. Dit Excel file (naam: "ARRAY10 YYMM.xls") 
+wordt locaal gesaved en omgezet naar een csv file. Dit gebeurt op de command line met een macro:\\
+\texttt{OOo-calc -invisible ARRAY10\ 0109.xls "macro:///Standard.Module1.To\_ascii"}\\
+Dit geeft het file to\_ascii.csv.
+
+Met het script: \texttt{update\_Luxembourg.sh} is de data in het juiste format te krijgen voor invoer. Hierbij wordt \emph{geen}
+gebruik gemaakt van een extern file wat nationaal stations id koppelt aan ECA\&D stations id.
+
+Het bash script staat vooralsnog op: /net/bhw132/nobackup\_1/users/schrier/ECAD/jobs.
+
+\subsection*{invoeren van SYNOP data van het GTS netwerk}
+Synop data wordt per maand vanaf het ECMWF binnen gehaald. Log in bij het ECMWF: \texttt{ssh -l nk6 -X ecaccess.ecmwf.int} en kies
+directory: ecgate. Login via de "Acividentity" tool, pin code: 0778. 
+In dit directory staat het script: runall.sh. Dit script dient handmatig aangepast te worden om data van de afgelopen maand binnen 
+te halen. Deze data wordt verzonden naar de ecadev machine (moet nog veranderd worden naar de bhlbontw).
+
+Het script: apps/scripts/meta\_dailyscripts.sh pakt de bufr data uit tot een ASCII bestand en vult de tabel \texttt{synops} 
+met de data.  Vanuit de tabel \texttt{synops} wordt de tabel \texttt{synops\_yy} gevuld.
+
+
+
+
+\subsection*{Backups op het MOS}
+Er bestaat een account 'rccuser' op het Massa Opslag Systeem voor backups van het ECA\&D systeem. 
+De UID op het MOS is 7205, de group is 'ksarch', dus daarmee kun je het KS archief in. Let wel: bij inloggen kom je binnen in 
+/usr/people/rccuser, waar je verder niets kunt opslaan. Het directory waar je wel iets kunt opslaan is: /fa/ks/RCC.
+Het password is '3c4dRCC'. 
+
+In de directory /data/apps/rcc/scripts op de bhlbontw staan drie scripts die een backup van de database, van de website en van de scripts
+maken en deze op het MOS zetten. De naam van de directory waar deze backups onder staan in gekoppeld aan de dag waarop de backup gemaakt
+wordt. Er is geen functionaliteit die oude backup weggooit.
+
+\subsection*{Permissies}
+
+
+
+
+
+
+
+\bibliography{bib/refer}
+
+
+\end{document}
