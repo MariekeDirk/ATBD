@@ -1,0 +1,36 @@
+Changes to be made to include global radiation in v10.8
+
+To do:
+PET
+Rn:  net radiation at crop surface (using ECA&D elements:  sunshine dura-
+tion and cloud cover)
+
+Write similar chapter to 5.3.10 Sunshine indices
+
+Clearness Index
+Calculated as fraction of total clear sky irradiances per day
+https://www.sciencedirect.com/topics/engineering/clearness-index 
+
+Ideas:
+
+Calculate fire indexes
+https://www.sciencedirect.com/science/article/pii/S2214398X16300127
+
+
+Chandler Burning Index (CBI) uses the air temperature and relative humidity to calculate a numerical index of fire danger. Several metservices use them. 
+
+CBI = (((110 - 1.373*RH) - 0.54 * (10.20 - T)) * (124 * 10**(-0.0142*RH)))/60
+
+where:
+
+RH = forecast monthly mean afternoon relative humidity (percent) --> monthly afternoon
+T = forecast monthly mean afternoon temperature (degrees Celsius)--> monthly afternoon
+
+https://stillwaterweather.com/chandlerburningindex.php 
+
+Fuel Mositure Index (FMI) is an estimate of moisture content in available fuels, it uses the air temperature and relative humidity to calculate a numerical index of fire danger. 
+
+FMI = 10 - 0.25 (T - H) 
+where H = Relative Humidity as % (0-100) and T = Temperature in Degrees Celcius.
+
+see: http://www.sasquatchstation.com/Fire_Weather.php 

@@ -596,13 +596,48 @@ window centered on each calendar day over the whole period)
 \medskip
 
 \noindent{\textbf{Daily global radiation QQ:}}\\
-\ldots must not exceed the physically possible global radiation ($QQ_{max}$). The physical limits depend on the geographical location and day of the year, defined as:
+\ldots must not exceed the physically possible global radiation ($QQ_{max} [W/m^2]$). The physical limits depend on the geographical location and day of the year, according to \cite{iqbal:83}: 
 
 \begin{equation}
-     \int_{t0_{xy}}^{t1_{xy}}S_{a} \cdot cos(\alpha) \cdot dt \notag
+L = 2\pi(n-1)/365 \notag
 \end{equation}
 
-Where, $t0_{xy}$ is sunrise and $t1_{xy}$ is sunset at location $xy$, $S_{a}$ is the clear sky irradiance depending on the distance to the sun, $\alpha$ is the solar zenith angle at time $t$ and $dt$ is the time step which was set to 15 minutes.\\ 
+Where L is the day angle in radians and n is the Julian day number from 1 until 366 (assuming a small error due to leap years). From L the declination angle ($\delta$) was calculated as:
+
+\begin{align*}
+\delta = 0.006918-0.399912 \cdot cos(L)+ \\
+0.070257 \cdot sin(L) - 0.006758 \cdot cos(2 \cdot L)+\\
+0.000907 \cdot sin(2 \cdot L) - 0.002697 \cdot cos(3 \cdot L)+\\
+0.00148 \cdot sin(3 \cdot L)) \notag
+\end{align*}
+
+and the sun earth distance constant ($d$):
+
+\begin{align*}
+d = 1.00011 + 0.034221 \cdot cos(L) + \\
+0.00128 \cdot sin(L) + 0.000719 \cdot cos(2 \cdot L) + \\ 0.000077 \cdot sin(2 \cdot L)\notag
+\end{align*}
+
+Now the maximum clear sky irradiance for a given Julian day is defined as $S_{a}=d \cdot S0$, where $S0$ is the maximum clear sky irradiance of $1367 W/m^{2}$. In the polar regions for continual days $QQ_{max}$ was calculated as:
+
+\begin{equation}
+    QQ_{max} = \frac{(24/\pi)\cdot I_{SC} \cdot d \cdot cos(\delta) \cdot \pi}{24 \cdot 3600}\notag
+\end{equation}
+
+Where $I_{SC}=S_{0}*3600$. During continual nights $QQ_{max}=0$. At the equator:
+
+\begin{equation}
+    QQ_{max} = \frac{(24/\pi)\cdot I_{SC} \cdot d \cdot cos(\delta)}{24 \cdot 3600}\notag
+\end{equation}
+
+Else, the following equation is:
+
+\begin{equation}
+    QQ_{max} = \frac{(24/\pi)\cdot I_{SC} \cdot d \cdot cos(\delta) * (\omega-tan(\omega))}{24 \cdot 3600}\notag
+\end{equation}
+
+Where $\omega$ is defined as $cos^{-1}(-tan(\Phi) \cdot tan(\delta))$, here $\Phi$ is the latitude in radians. 
+
 \ldots must not be less than 3\% of $QQ_{max}$
 \medskip
 
